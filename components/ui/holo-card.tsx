@@ -4,7 +4,7 @@
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
-interface HoloCardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface HoloCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "onDrag" | "onDragStart" | "onDragEnd" | "onAnimationStart" | "onDragEnter" | "onDragLeave" | "onDragOver" | "onDrop"> {
     children: React.ReactNode;
     active?: boolean;
 }
