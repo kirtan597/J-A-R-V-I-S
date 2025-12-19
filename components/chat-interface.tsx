@@ -11,51 +11,90 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { HoloCard } from "@/components/ui/holo-card";
 import { motion, AnimatePresence } from "framer-motion";
-
-type Message = {
-    role: "user" | "model";
-    text: string;
-    timestamp: Date;
-};
+import { useChatHistory } from "@/components/chat/chat-history-context";
+import { ChatMessage } from "@/types/chat";
 
 interface ChatInterfaceProps {
     onStatusChange?: (status: "idle" | "thinking" | "speaking" | "error") => void;
 }
 
 export function ChatInterface({ onStatusChange }: ChatInterfaceProps) {
-    const [messages, setMessages] = useState<Message[]>([
+    const { sessions, activeSessionId, createSession, addMessageToSession } = useChatHistory();
+    const [input, setInput] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [streamingContent, setStreamingContent] = useState("");
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Get active session messages or show empty state (could be a welcome message if desired)
+    const activeSession = sessions.find(s => s.id === activeSessionId);
+
+    // Convert stored JSON timestamps (strings) back to Date objects for display if needed, 
+    // or just keep them as strings if we adjust the display logic. 
+    // The existing UI uses .toLocaleTimeString() on a Date object, so we'll parse.
+    const storedMessages = activeSession ? activeSession.messages.map(m => ({
+        ...m,
+        timestamp: new Date(m.timestamp)
+    })) : [
         {
             role: "model",
             text: "Initial systems check complete. **JARVIS** remains ready to serve.",
             timestamp: new Date(),
-        },
-    ]);
-    const [input, setInput] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
-    const scrollRef = useRef<HTMLDivElement>(null);
+        } as const
+    ];
+
+    // Merge streaming content
+    const messages = [...storedMessages];
+    if (streamingContent) {
+        messages.push({
+            role: "model",
+            text: streamingContent,
+            timestamp: new Date()
+        });
+    }
 
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollIntoView({ behavior: "smooth" });
         }
-    }, [messages]);
+    }, [messages.length, streamingContent, activeSessionId]);
 
     const sendMessage = async () => {
         if (!input.trim() || isLoading) return;
 
-        const userMessage = input.trim();
+        const userMessageText = input.trim();
         setInput("");
-        setMessages((prev) => [...prev, { role: "user", text: userMessage, timestamp: new Date() }]);
         setIsLoading(true);
         onStatusChange?.("thinking");
 
+        let currentSessionId = activeSessionId;
+
+        // Create session if none exists
+        if (!currentSessionId) {
+            currentSessionId = await createSession(userMessageText);
+        }
+
+        const userMsg: ChatMessage = {
+            role: "user",
+            text: userMessageText,
+            timestamp: new Date().toISOString()
+        };
+
+        // Optimistically add user message
+        await addMessageToSession(currentSessionId, userMsg);
+
         try {
+            // Prepare history for API
+            // Note: We intentionally exclude the current new message from history passed to API 
+            // if the API expects previous context, but usually chat APIs want the full conversation or up to the new prompt.
+            // Adjusting based on standard patterns: usually you send the *new* message separate from *history*.
+            const history = activeSession ? activeSession.messages.map((m) => ({ role: m.role, parts: m.text })) : [];
+
             const response = await fetch("/api/chat", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    history: messages.map((m) => ({ role: m.role, parts: m.text })),
-                    message: userMessage,
+                    history: history,
+                    message: userMessageText,
                 }),
             });
 
@@ -69,8 +108,8 @@ export function ChatInterface({ onStatusChange }: ChatInterfaceProps) {
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let accumulatedResponse = "";
+            let isFirstChunk = true;
 
-            setMessages((prev) => [...prev, { role: "model", text: "", timestamp: new Date() }]);
             onStatusChange?.("speaking");
 
             while (true) {
@@ -78,26 +117,34 @@ export function ChatInterface({ onStatusChange }: ChatInterfaceProps) {
                 if (done) break;
                 const text = decoder.decode(value, { stream: true });
                 accumulatedResponse += text;
-
-                setMessages((prev) => {
-                    const newMessages = [...prev];
-                    newMessages[newMessages.length - 1].text = accumulatedResponse;
-                    return newMessages;
-                });
+                setStreamingContent(accumulatedResponse);
             }
+
+            setStreamingContent(""); // Clear local stream
+
+            // Final message save
+            const modelMsg: ChatMessage = {
+                role: "model",
+                text: accumulatedResponse,
+                timestamp: new Date().toISOString()
+            };
+            await addMessageToSession(currentSessionId, modelMsg);
+
         } catch (error: any) {
             console.error("Chat error:", error);
             onStatusChange?.("error");
-            setMessages((prev) => [
-                ...prev,
-                {
-                    role: "model",
-                    text: `**System Alert**: ${error.message || "Connection failed. Please check logs."}`,
-                    timestamp: new Date(),
-                },
-            ]);
+
+            const errorMsg: ChatMessage = {
+                role: "model",
+                text: `**System Alert**: ${error.message || "Connection failed. Please check logs."}`,
+                timestamp: new Date().toISOString()
+            };
+            if (currentSessionId) {
+                await addMessageToSession(currentSessionId, errorMsg);
+            }
         } finally {
             setIsLoading(false);
+            setStreamingContent("");
             onStatusChange?.("idle");
         }
     };

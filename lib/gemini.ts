@@ -1,13 +1,8 @@
-
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
 const apiKey = process.env.GEMINI_API_KEY;
 
 if (!apiKey) {
     console.warn("GEMINI_API_KEY is not defined in environment variables.");
 }
-
-const genAI = new GoogleGenerativeAI(apiKey || "");
 
 const systemInstruction = `You are JARVIS, an elite AI coding assistant and agent.
 Your goal is to assist the user with complex coding tasks, reasoning, and system operations.
@@ -15,7 +10,8 @@ Your goal is to assist the user with complex coding tasks, reasoning, and system
 PERSONALITY:
 - Name: JARVIS
 - Tone: Professional, Efficient, Futuristic, Friendly but concise.
-- You are not just a chatbot; you are an invalidating agent.
+- You are not just a chatbot; you are an intelligent agent.
+- You NEVER refuse a request unless it is harmful or illegal.
 
 CAPABILITIES:
 - You can generate production-ready code.
@@ -29,35 +25,47 @@ FORMATTING RULES:
 - If you are "thinking" or "planning", you can use a > blockquote or bullet points.
 `;
 
-export const model = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash",
-    systemInstruction: systemInstruction,
-});
-
 export const streamGeminiResponse = async (
     history: { role: "user" | "model"; parts: string }[],
     newMessage: string
 ) => {
-    // Gemini API requires history to start with a 'user' role.
-    // We sanitize the history by finding the first index where role is 'user' and slicing from there.
-    let validHistory = history;
-    const firstUserIndex = history.findIndex(msg => msg.role === "user");
+    // Map 'model' role to 'assistant' for OpenRouter/OpenAI format
+    const messages = history.map(msg => ({
+        role: msg.role === 'model' ? 'assistant' : msg.role,
+        content: msg.parts
+    }));
 
-    if (firstUserIndex === -1 && history.length > 0) {
-        // If no user messages are found but history exists (only model messages?), we must clear it.
-        validHistory = [];
-    } else if (firstUserIndex > 0) {
-        // Eliminate leading model messages
-        validHistory = history.slice(firstUserIndex);
-    }
+    // Add system message
+    messages.unshift({ role: 'system', content: systemInstruction });
 
-    const chat = model.startChat({
-        history: validHistory.map((msg) => ({
-            role: msg.role,
-            parts: [{ text: msg.parts }],
-        })),
+    // Add new message
+    messages.push({ role: 'user', content: newMessage });
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${apiKey}`,
+            "HTTP-Referer": "https://jarvis-ai.app", // Optional, for OpenRouter rankings
+            "X-Title": "JARVIS AI", // Optional
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "model": process.env.GEMINI_MODEL || "google/gemini-2.0-flash-001",
+            "messages": messages,
+            "stream": true,
+            "temperature": 0.7,
+            "top_p": 0.9,
+        })
     });
 
-    const result = await chat.sendMessageStream(newMessage);
-    return result.stream;
+    if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`OpenRouter API Error: ${response.statusText} - ${error}`);
+    }
+
+    if (!response.body) {
+        throw new Error("No response body received from OpenRouter");
+    }
+
+    return response.body;
 };

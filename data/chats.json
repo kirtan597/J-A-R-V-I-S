@@ -1,0 +1,20 @@
+[
+  {
+    "id": "7fd0a85a-9525-462b-84d2-3c0917882755",
+    "title": "hi jarvis give me the dsa roda...",
+    "createdAt": 1766170458853,
+    "updatedAt": 1766170462846,
+    "messages": [
+      {
+        "role": "user",
+        "text": "hi jarvis give me the dsa rodamap",
+        "timestamp": "2025-12-19T18:54:18.907Z"
+      },
+      {
+        "role": "model",
+        "text": "Hello! I'm happy to provide you with a roadmap for Data Structures and Algorithms (DSA). This roadmap is designed to guide you from beginner to advanced levels.\n\n**Phase 1: Foundations**\n\n*   **Basic Data Structures:**\n    *   Arrays\n    *   Linked Lists (Singly, Doubly, Circular)\n    *   Stacks\n    *   Queues\n*   **Basic Algorithms:**\n    *   Searching Algorithms (Linear Search, Binary Search)\n    *   Sorting Algorithms (Bubble Sort, Insertion Sort, Selection Sort)\n*   **Essential Concepts:**\n    *   Time Complexity (Big O Notation)\n    *   Space Complexity\n\n**Phase 2: Intermediate**\n\n*   **Intermediate Data Structures:**\n    *   Trees (Binary Trees, Binary Search Trees)\n    *   Heaps (Min Heap, Max Heap)\n    *   Hash Tables\n*   **Intermediate Algorithms:**\n    *   Recursion\n    *   Divide and Conquer\n    *   Greedy Algorithms\n*   **Practice:**\n    *   Solve problems on platforms like LeetCode, HackerRank, and Codeforces.\n\n**Phase 3: Advanced**\n\n*   **Advanced Data Structures:**\n    *   Graphs (Adjacency Matrix, Adjacency List)\n    *   Tries\n    *   Segment Trees\n    *   Fenwick Trees (Binary Indexed Trees)\n*   **Advanced Algorithms:**\n    *   Dynamic Programming\n    *   Graph Algorithms (BFS, DFS, Dijkstra's, Bellman-Ford, Floyd-Warshall)\n    *   Backtracking\n*   **System Design:**\n    *   Understand how to apply DSA knowledge to design scalable systems.\n*   **Advanced Practice:**\n    *   Participate in coding competitions and contribute to open-source projects.\n\n**Tips for Success:**\n\n*   **Consistency:** Practice regularly.\n*   **Understand, Don't Memorize:** Focus on understanding the underlying principles.\n*   **Visualize:** Use diagrams to understand data structures and algorithms.\n*   **Debugging:** Get comfortable with debugging your code.\n*   **Community:** Join coding communities to learn from others.\n\nLet me know if you would like a more detailed breakdown of any specific phase or topic!\n",
+        "timestamp": "2025-12-19T18:54:22.822Z"
+      }
+    ]
+  }
+]

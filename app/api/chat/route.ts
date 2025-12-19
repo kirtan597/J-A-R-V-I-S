@@ -1,4 +1,3 @@
-
 import { streamGeminiResponse } from "@/lib/gemini";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -6,10 +5,10 @@ export async function POST(req: NextRequest) {
     try {
         const { history, message } = await req.json();
 
-        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "YOUR_API_KEY_HERE") {
-            console.error("API Key missing or invalid");
+        if (!process.env.GEMINI_API_KEY) {
+            console.error("API Key missing");
             return NextResponse.json(
-                { error: "Configuration Error: GEMINI_API_KEY is not set. Please check your .env file." },
+                { error: "Configuration Error: API Key is not set." },
                 { status: 500 }
             );
         }
@@ -22,15 +21,41 @@ export async function POST(req: NextRequest) {
         }
 
         try {
-            const stream = await streamGeminiResponse(history || [], message);
+            const upstreamStream = await streamGeminiResponse(history || [], message);
 
             const encoder = new TextEncoder();
+            const decoder = new TextDecoder();
+
             const readable = new ReadableStream({
                 async start(controller) {
+                    const reader = upstreamStream.getReader();
+
                     try {
-                        for await (const chunk of stream) {
-                            const text = chunk.text();
-                            controller.enqueue(encoder.encode(text));
+                        while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+
+                            const chunk = decoder.decode(value, { stream: true });
+                            // OpenRouter/OpenAI streams are SSE "data: {...}" lines
+                            // We need to parse them to get just the text content to send to client
+                            // OR we can just pass through the text if the client expects raw text.
+                            // The client (ChatInterface) expects just the text content appended directly.
+                            // So we must parse the SSE here.
+
+                            const lines = chunk.split('\n');
+                            for (const line of lines) {
+                                if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+                                    try {
+                                        const json = JSON.parse(line.slice(6));
+                                        const content = json.choices?.[0]?.delta?.content || '';
+                                        if (content) {
+                                            controller.enqueue(encoder.encode(content));
+                                        }
+                                    } catch (e) {
+                                        // Ignore parse errors for partial lines
+                                    }
+                                }
+                            }
                         }
                         controller.close();
                     } catch (error) {
@@ -46,7 +71,7 @@ export async function POST(req: NextRequest) {
                 },
             });
         } catch (genAIError: any) {
-            console.error("Gemini SDK Error:", genAIError);
+            console.error("provider Error:", genAIError);
             return NextResponse.json(
                 { error: `AI Engine Error: ${genAIError.message || "Unknown error"}` },
                 { status: 503 }
