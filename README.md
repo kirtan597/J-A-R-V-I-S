@@ -13,6 +13,8 @@
     <a href="https://www.framer.com/motion/"><img src="https://img.shields.io/badge/Framer_Motion-Animation-black?style=for-the-badge&logo=framer&logoColor=white" alt="Framer Motion" /></a>
     <a href="https://ui.shadcn.com"><img src="https://img.shields.io/badge/ShadCN-UI-000000?style=for-the-badge&logo=shadcnui&logoColor=white" alt="ShadCN" /></a>
     <a href="https://aistudio.google.com/"><img src="https://img.shields.io/badge/Gemini-2.5_Flash-8E75B2?style=for-the-badge&logo=google&logoColor=white" alt="Gemini" /></a>
+    <br/>
+    <a href="https://jarvisagent.netlify.app"><img src="https://img.shields.io/badge/🚀_Live_Demo-jarvisagent.netlify.app-00C7B7?style=for-the-badge&logo=netlify&logoColor=white" alt="Live Demo" /></a>
   </p>
 
   <br />
