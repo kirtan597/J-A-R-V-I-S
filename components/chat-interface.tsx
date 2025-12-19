@@ -24,6 +24,7 @@ export function ChatInterface({ onStatusChange }: ChatInterfaceProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [streamingContent, setStreamingContent] = useState("");
     const scrollRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
     // Get active session messages or show empty state (could be a welcome message if desired)
     const activeSession = sessions.find(s => s.id === activeSessionId);
@@ -52,11 +53,24 @@ export function ChatInterface({ onStatusChange }: ChatInterfaceProps) {
         });
     }
 
+    // Auto-scroll on new message or session change
     useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollIntoView({ behavior: "smooth" });
+        scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages.length, activeSessionId]);
+
+    // Smart scroll during streaming (only if user is at bottom)
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container || !streamingContent) return;
+
+        // Check format: scrollHeight - scrollTop === clientHeight (approx)
+        const distance = container.scrollHeight - container.scrollTop - container.clientHeight;
+        const isAtBottom = distance <= 50;
+
+        if (isAtBottom) {
+            scrollRef.current?.scrollIntoView({ behavior: "auto" });
         }
-    }, [messages.length, streamingContent, activeSessionId]);
+    }, [streamingContent]);
 
     const sendMessage = async () => {
         if (!input.trim() || isLoading) return;
@@ -172,7 +186,7 @@ export function ChatInterface({ onStatusChange }: ChatInterfaceProps) {
     return (
         <HoloCard className="flex flex-col h-full border-none shadow-none bg-transparent">
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scrollbar-thin scrollbar-thumb-cyan-900/50 scrollbar-track-transparent">
+            <div ref={containerRef} className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scrollbar-thin scrollbar-thumb-cyan-900/50 scrollbar-track-transparent">
                 <AnimatePresence initial={false}>
                     {messages.map((msg, index) => (
                         <motion.div

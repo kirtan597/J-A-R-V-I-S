@@ -31,7 +31,7 @@ export function HoloCard({ children, className, active, ...props }: HoloCardProp
             <div className="absolute bottom-0 left-0 w-2 h-2 border-l border-b border-cyan-500 opacity-50" />
             <div className="absolute bottom-0 right-0 w-2 h-2 border-r border-b border-cyan-500 opacity-50" />
 
-            <div className="relative z-10">
+            <div className="relative z-10 h-full">
                 {children}
             </div>
         </motion.div>
