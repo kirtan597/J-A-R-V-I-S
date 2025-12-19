@@ -1,12 +1,10 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+const OPENROUTER_API_KEY = process.env.GEMINI_API_KEY;
+const SITE_URL = "https://jarvis-ai.app";
+const SITE_NAME = "JARVIS AI";
 
-const apiKey = process.env.GEMINI_API_KEY;
-
-if (!apiKey) {
-    console.warn("GEMINI_API_KEY is not defined in environment variables.");
+if (!OPENROUTER_API_KEY) {
+    console.warn("GEMINI_API_KEY is not defined in environment variables (mapped to OpenRouter).");
 }
-
-const genAI = new GoogleGenerativeAI(apiKey || "");
 
 const systemInstruction = `You are JARVIS, an elite AI coding assistant and agent.
 Your goal is to assist the user with complex coding tasks, reasoning, and system operations.
@@ -29,32 +27,44 @@ FORMATTING RULES:
 - If you are "thinking" or "planning", you can use a > blockquote or bullet points.
 `;
 
-export const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-exp", // Standard Google model ID
-    systemInstruction: systemInstruction,
-});
-
 export const streamGeminiResponse = async (
     history: { role: "user" | "model"; parts: string }[],
     newMessage: string
 ) => {
-    // Gemini API requires history to start with a 'user' role.
-    let validHistory = history;
-    const firstUserIndex = history.findIndex(msg => msg.role === "user");
-
-    if (firstUserIndex === -1 && history.length > 0) {
-        validHistory = [];
-    } else if (firstUserIndex > 0) {
-        validHistory = history.slice(firstUserIndex);
-    }
-
-    const chat = model.startChat({
-        history: validHistory.map((msg) => ({
-            role: msg.role,
-            parts: [{ text: msg.parts }],
+    const messages = [
+        { role: "system", content: systemInstruction },
+        ...history.map(msg => ({
+            role: msg.role === "model" ? "assistant" : "user",
+            content: msg.parts
         })),
+        { role: "user", content: newMessage }
+    ];
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+            "HTTP-Referer": SITE_URL,
+            "X-Title": SITE_NAME,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            "model": process.env.GEMINI_MODEL || "google/gemini-2.0-flash-001",
+            "messages": messages,
+            "stream": true,
+            "temperature": 0.7,
+            "top_p": 0.9,
+        })
     });
 
-    const result = await chat.sendMessageStream(newMessage);
-    return result.stream;
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`OpenRouter API Error: ${response.statusText} - ${errorText}`);
+    }
+
+    if (!response.body) {
+        throw new Error("OpenRouter API Error: No response body");
+    }
+
+    return response.body;
 };

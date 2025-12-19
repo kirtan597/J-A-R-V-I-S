@@ -99,6 +99,9 @@ export function ChatInterface({ onStatusChange }: ChatInterfaceProps) {
             });
 
             if (!response.ok) {
+                if (response.status === 429) {
+                    throw new Error("I'm thinking too fast! Please wait a moment (Rate Limit).");
+                }
                 const errorData = await response.json().catch(() => ({}));
                 throw new Error(errorData.error || `Server Error: ${response.status}`);
             }
