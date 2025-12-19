@@ -27,7 +27,7 @@ Building something this advanced required the absolute best tools in the industr
 *   **Universal Memory:** Persists your chats locally or in the cloud automatically.
 *   **Holographic Sidebar:** Manage recent sessions with a sleek, collapsible interface.
 *   **Cyber Terminal:** Real-time system logs debugging the AI's thought process.
-*   **Zero-Latency Streaming:** Instant visual feedback tailored to the verified Gemini 2.0 Flash engine.
+*   **Zero-Latency Streaming:** Native integration with Google's `gemini-2.0-flash-exp` for ultra-low latency response.
 
 ---
 

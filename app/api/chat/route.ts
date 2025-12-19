@@ -21,41 +21,15 @@ export async function POST(req: NextRequest) {
         }
 
         try {
-            const upstreamStream = await streamGeminiResponse(history || [], message);
+            const stream = await streamGeminiResponse(history || [], message);
 
             const encoder = new TextEncoder();
-            const decoder = new TextDecoder();
-
             const readable = new ReadableStream({
                 async start(controller) {
-                    const reader = upstreamStream.getReader();
-
                     try {
-                        while (true) {
-                            const { done, value } = await reader.read();
-                            if (done) break;
-
-                            const chunk = decoder.decode(value, { stream: true });
-                            // OpenRouter/OpenAI streams are SSE "data: {...}" lines
-                            // We need to parse them to get just the text content to send to client
-                            // OR we can just pass through the text if the client expects raw text.
-                            // The client (ChatInterface) expects just the text content appended directly.
-                            // So we must parse the SSE here.
-
-                            const lines = chunk.split('\n');
-                            for (const line of lines) {
-                                if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-                                    try {
-                                        const json = JSON.parse(line.slice(6));
-                                        const content = json.choices?.[0]?.delta?.content || '';
-                                        if (content) {
-                                            controller.enqueue(encoder.encode(content));
-                                        }
-                                    } catch (e) {
-                                        // Ignore parse errors for partial lines
-                                    }
-                                }
-                            }
+                        for await (const chunk of stream) {
+                            const text = chunk.text();
+                            controller.enqueue(encoder.encode(text));
                         }
                         controller.close();
                     } catch (error) {
