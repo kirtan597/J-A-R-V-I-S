@@ -2,17 +2,17 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Terminal, Activity, FileCode, CheckCircle2 } from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Terminal, Activity, Wifi, Shield, Cpu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { HoloCard } from "@/components/ui/holo-card";
 
 type Log = {
     id: string;
     type: "info" | "success" | "warning" | "error" | "code";
     message: string;
     timestamp: string;
+    module: string;
 };
 
 export function CodeVisualizer() {
@@ -20,39 +20,39 @@ export function CodeVisualizer() {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        // Simulated init sequence
         const initLogs: Log[] = [
-            { id: '1', type: 'info', message: 'Initializing JARVIS Core Systems...', timestamp: new Date().toLocaleTimeString() },
-            { id: '2', type: 'info', message: 'Loading Neural Models...', timestamp: new Date().toLocaleTimeString() },
-            { id: '3', type: 'success', message: 'System Ready. Waiting for input.', timestamp: new Date().toLocaleTimeString() },
+            { id: '1', type: 'info', message: 'BIOS Check... OK', timestamp: new Date().toLocaleTimeString(), module: 'SYS' },
+            { id: '2', type: 'info', message: 'Neural Link Established', timestamp: new Date().toLocaleTimeString(), module: 'NET' },
+            { id: '3', type: 'success', message: 'JARVIS Protocol v2.5 Online', timestamp: new Date().toLocaleTimeString(), module: 'CORE' },
         ];
         setLogs(initLogs);
 
         const interval = setInterval(() => {
-            // Add random "ambient" system logs to make it feel alive
             const ambientMessages = [
-                "Scanning file system...",
-                "Optimizing memory usage...",
-                " analyzing context window...",
-                "Ping: 12ms connected to Gateway",
+                { msg: "Analyzing context vector...", mod: "AI" },
+                { msg: "Memory heap optimized", mod: "MEM" },
+                { msg: "Encrypting output stream", mod: "SEC" },
+                { msg: "Ping: 14ms", mod: "NET" },
             ];
 
-            if (Math.random() > 0.8) {
-                addLog("info", ambientMessages[Math.floor(Math.random() * ambientMessages.length)]);
+            if (Math.random() > 0.5) {
+                const randomLog = ambientMessages[Math.floor(Math.random() * ambientMessages.length)];
+                addLog("info", randomLog.msg, randomLog.mod);
             }
-        }, 5000);
+        }, 3000);
 
         return () => clearInterval(interval);
     }, []);
 
-    const addLog = (type: Log["type"], message: string) => {
+    const addLog = (type: Log["type"], message: string, module: string = "SYS") => {
         setLogs((prev) => [
-            ...prev,
+            ...prev.slice(-30), // Keep only last 30 logs for performance
             {
                 id: Math.random().toString(36).substring(7),
                 type,
                 message,
                 timestamp: new Date().toLocaleTimeString(),
+                module,
             },
         ]);
     };
@@ -64,57 +64,52 @@ export function CodeVisualizer() {
     }, [logs]);
 
     return (
-        <Card className="h-full bg-black/80 backdrop-blur-xl border-white/10 shadow-2xl flex flex-col overflow-hidden rounded-2xl">
+        <HoloCard className="h-full flex flex-col font-mono text-[10px] sm:text-xs">
             {/* Header */}
-            <div className="p-3 border-b border-white/10 flex items-center justify-between bg-white/5">
-                <div className="flex items-center gap-2">
-                    <Terminal className="w-4 h-4 text-purple-400" />
-                    <span className="text-sm font-medium text-white/90">Agent Terminal</span>
+            <div className="h-8 border-b border-cyan-500/20 flex items-center justify-between px-3 bg-cyan-950/10 backdrop-blur-md">
+                <div className="flex items-center gap-2 text-cyan-400">
+                    <Terminal size={12} />
+                    <span className="tracking-widest font-bold">SYSTEM_LOGS</span>
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-400">Status:</span>
-                    <span className="text-xs text-green-400 font-mono">ACTIVE</span>
-                    <Activity className="w-3 h-3 text-green-500 animate-pulse" />
-                </div>
-            </div>
-
-            {/* Terminal View */}
-            <div className="flex-1 p-4 overflow-y-auto font-mono text-xs">
-                <div className="space-y-2">
-                    <AnimatePresence>
-                        {logs.map((log) => (
-                            <motion.div
-                                key={log.id}
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                className="flex items-start gap-3 group"
-                            >
-                                <span className="text-gray-600 shrink-0 select-none">[{log.timestamp}]</span>
-                                <div className={cn(
-                                    "flex items-center gap-2",
-                                    log.type === 'info' && "text-blue-300",
-                                    log.type === 'success' && "text-green-400",
-                                    log.type === 'warning' && "text-yellow-400",
-                                    log.type === 'error' && "text-red-400",
-                                    log.type === 'code' && "text-purple-300",
-                                )}>
-                                    {log.type === 'success' && <CheckCircle2 size={12} />}
-                                    {log.type === 'code' && <FileCode size={12} />}
-                                    {log.type === 'info' && <span className="text-blue-500">➜</span>}
-                                    <span>{log.message}</span>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
-                    <div ref={scrollRef} />
+                <div className="flex gap-3">
+                    <Cpu size={12} className="text-cyan-600 animate-pulse" />
+                    <Wifi size={12} className="text-cyan-600" />
+                    <Shield size={12} className="text-cyan-600" />
                 </div>
             </div>
 
-            {/* Decorations */}
-            <div className="p-2 border-t border-white/5 bg-black/40 flex justify-between text-[10px] text-gray-500 uppercase tracking-wider">
-                <span>Mem: 45MB / 512MB</span>
-                <span>Threads: 4</span>
+            {/* Terminal Output */}
+            <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-none font-mono">
+                <AnimatePresence initial={false}>
+                    {logs.map((log) => (
+                        <motion.div
+                            key={log.id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="flex gap-2 text-cyan-100/80 hover:bg-cyan-500/5 px-1 rounded transition-colors"
+                        >
+                            <span className="text-cyan-700 w-14 shrink-0 opacity-50">{log.timestamp.split(' ')[0]}</span>
+                            <span className={cn(
+                                "w-12 shrink-0 font-bold",
+                                log.type === 'info' && "text-cyan-500",
+                                log.type === 'success' && "text-green-500",
+                                log.type === 'error' && "text-red-500",
+                            )}>
+                                [{log.module}]
+                            </span>
+                            <span className="truncate">{log.message}</span>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+                <div ref={scrollRef} />
             </div>
-        </Card>
+
+            {/* Footer Status Line */}
+            <div className="px-3 py-1 border-t border-cyan-500/20 bg-black/20 text-cyan-600 flex justify-between uppercase tracking-widest text-[9px]">
+                <span>RAM: 42%</span>
+                <span>CPU: 12%</span>
+                <span>UPTIME: 03:14:15</span>
+            </div>
+        </HoloCard>
     );
 }

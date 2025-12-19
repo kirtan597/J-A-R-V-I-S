@@ -30,7 +30,7 @@ FORMATTING RULES:
 `;
 
 export const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: "gemini-2.5-flash",
     systemInstruction: systemInstruction,
 });
 
@@ -38,8 +38,21 @@ export const streamGeminiResponse = async (
     history: { role: "user" | "model"; parts: string }[],
     newMessage: string
 ) => {
+    // Gemini API requires history to start with a 'user' role.
+    // We sanitize the history by finding the first index where role is 'user' and slicing from there.
+    let validHistory = history;
+    const firstUserIndex = history.findIndex(msg => msg.role === "user");
+
+    if (firstUserIndex === -1 && history.length > 0) {
+        // If no user messages are found but history exists (only model messages?), we must clear it.
+        validHistory = [];
+    } else if (firstUserIndex > 0) {
+        // Eliminate leading model messages
+        validHistory = history.slice(firstUserIndex);
+    }
+
     const chat = model.startChat({
-        history: history.map((msg) => ({
+        history: validHistory.map((msg) => ({
             role: msg.role,
             parts: [{ text: msg.parts }],
         })),

@@ -123,3 +123,29 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes scanline {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 0% 100%; }
+}
+
+@keyframes shine {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.animate-scanline {
+  animation: scanline 4s linear infinite;
+}
+
+.animate-shine {
+  animation: shine 3s linear infinite;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
