@@ -29,8 +29,13 @@ export function AnimatedBackground() {
                 className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-violet-900/20 rounded-full blur-[120px]"
             />
 
-            {/* Floating Particles (Simulated) */}
-            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-[0.03] mix-blend-overlay" />
+            {/* Floating Particles (Simulated via CSS) */}
+            <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none"
+                style={{
+                    backgroundImage: `radial-gradient(circle at center, white 1px, transparent 1px)`,
+                    backgroundSize: '24px 24px'
+                }}
+            />
         </div>
     );
 }

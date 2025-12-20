@@ -55,7 +55,7 @@ The interface is built to feel "alive" — with breathing neon glows, scanning d
 - **Stack**: Next.js 15 (App Router), TypeScript, Tailwind CSS.
 - **Streaming**: Instant token-by-token responses using Vercel AI SDK patterns.
 - **Robust**: Full error handling for API quotas and network issues.
-
+- **Optimized UI**: Chat UI optimized for stable layout and smooth scrolling, even during long streaming responses.
 ---
 
 ## 🛠️ Technology Stack

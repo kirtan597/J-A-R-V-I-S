@@ -5,7 +5,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, Code, Activity, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ChatInterface } from "@/components/chat-interface";
+import { ChatContainer } from "@/components/chat/chat-container";
 import { CodeVisualizer } from "@/components/code-visualizer";
 import { AnimatedBackground } from "@/components/ui/animated-background";
 import { JarvisCore } from "@/components/ui/jarvis-core";
@@ -144,7 +144,7 @@ export default function Home() {
 
                 {/* CHAT INTERFACE */}
                 <div className="flex-1 min-w-0 relative h-full">
-                  <ChatInterface onStatusChange={setJarvisStatus} />
+                  <ChatContainer onStatusChange={setJarvisStatus} />
                 </div>
               </div>
 
