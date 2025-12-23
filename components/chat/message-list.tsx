@@ -1,7 +1,9 @@
 import { useRef, useEffect } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { ChatMessage, ChatMessageProps } from "./chat-message";
 import { cn } from "@/lib/utils";
+import { useAutoScroll } from "@/hooks/use-auto-scroll";
+import { ArrowDown } from "lucide-react";
 
 interface MessageListProps {
     messages: ChatMessageProps[];
@@ -9,96 +11,55 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages, className }: MessageListProps) {
-    const scrollRef = useRef<HTMLDivElement>(null);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-    const isAtBottomRef = useRef(true);
-
-
-    const handleScroll = () => {
-        if (!scrollRef.current) return;
-        const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-        const distanceToBottom = scrollHeight - scrollTop - clientHeight;
-
-        // Update isAtBottom ref based on scroll position
-        // used to determine if we should auto-scroll on new content
-        // TOLERANCE: 20px
-        isAtBottomRef.current = distanceToBottom <= 20;
-    };
-
-
-
-    const scrollToBottom = (behavior: "auto" | "smooth" = "auto") => {
-        if (scrollRef.current) {
-            const { scrollHeight, clientHeight } = scrollRef.current;
-            const maxScrollTop = scrollHeight - clientHeight;
-
-            if (behavior === "smooth") {
-                scrollRef.current.scrollTo({ top: maxScrollTop, behavior: "smooth" });
-            } else {
-                scrollRef.current.scrollTop = maxScrollTop;
-            }
-        }
-    };
-
-    useEffect(() => {
-        // When messages change (new message or streaming update)
-        if (messages.length === 0) return;
-
-        const lastMessage = messages[messages.length - 1];
-
-        // 1. If user just sent a message, force scroll to bottom
-        if (lastMessage.role === "user") {
-            scrollToBottom("smooth");
-            return;
-        }
-
-        // 2. If receiving AI response (streaming or done)
-        // Only scroll if the user was strictly at the bottom before the update
-        if (isAtBottomRef.current) {
-            scrollToBottom("auto");
-        }
-    }, [messages]); // Dependency on messages array (which changes ref on update)
+    const {
+        scrollRef,
+        isAtBottom,
+        showScrollButton,
+        scrollToBottom,
+        handleScroll
+    } = useAutoScroll<HTMLDivElement>([messages], { smooth: true });
 
     return (
-        <div
-            ref={scrollRef}
-            onScroll={handleScroll}
-            onWheel={(e) => {
-                // If user scrolls UP, break the auto-scroll lock immediately
-                if (e.deltaY < 0) {
-                    isAtBottomRef.current = false;
-                }
-            }}
-            onTouchMove={() => {
-                // Touch usage often implies looking around; safeguard against auto-snap
-                // We rely on handleScroll to re-enable isAtBottomRef if they hit the bottom
-                // But while moving, if they are not at bottom, we shouldn't snap
-                if (scrollRef.current) {
-                    const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
-                    const distance = scrollHeight - scrollTop - clientHeight;
-                    if (distance > 20) {
-                        isAtBottomRef.current = false;
-                    }
-                }
-            }}
-            className={cn(
-                "flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scrollbar-thin scrollbar-thumb-cyan-900/50 scrollbar-track-transparent",
-                className
-            )}
-            style={{
-                scrollbarGutter: 'stable',
-                overscrollBehavior: 'contain',
-                overflowAnchor: 'none'
-            }}
-        >
-            {messages.map((msg, index) => (
-                <ChatMessage
-                    key={index} // Using index is safe here as this is a append-only list for this view
-                    {...msg}
-                />
-            ))}
-            {/* Sentinel for scrolling */}
-            <div ref={messagesEndRef} className="h-px w-full" />
+        <div className="relative flex-1 min-h-0 overflow-hidden flex flex-col">
+            <div
+                ref={scrollRef}
+                onScroll={handleScroll}
+                data-lenis-prevent="true" // CRITICAL logic to stop Lenis hijacking
+                className={cn(
+                    "flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scrollbar-thin scrollbar-thumb-cyan-900/50 scrollbar-track-transparent",
+                    className
+                )}
+                style={{
+                    scrollbarGutter: 'stable',
+                    overscrollBehavior: 'contain',
+                    overflowAnchor: 'none' // We handle sticking manually
+                }}
+            >
+                {messages.map((msg, index) => (
+                    <ChatMessage
+                        key={index} // safe for append-only
+                        {...msg}
+                    />
+                ))}
+
+                {/* Spacer to ensure we can scroll past the last message a bit */}
+                <div className="h-4 w-full" />
+            </div>
+
+            {/* Jump to bottom button */}
+            <AnimatePresence>
+                {showScrollButton && (
+                    <motion.button
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 10 }}
+                        onClick={() => scrollToBottom()}
+                        className="absolute bottom-6 right-6 p-2 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-900/80 backdrop-blur-sm shadow-lg z-10 transition-colors"
+                    >
+                        <ArrowDown size={20} />
+                    </motion.button>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useState, useRef } from "react";
@@ -6,6 +5,7 @@ import { Terminal, Activity, Wifi, Shield, Cpu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { HoloCard } from "@/components/ui/holo-card";
+import { useAutoScroll } from "@/hooks/use-auto-scroll";
 
 type Log = {
     id: string;
@@ -17,7 +17,9 @@ type Log = {
 
 export function CodeVisualizer() {
     const [logs, setLogs] = useState<Log[]>([]);
-    const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Use the same smart scroll hook for the terminal
+    const { scrollRef } = useAutoScroll<HTMLDivElement>([logs], { offset: 20 });
 
     useEffect(() => {
         const initLogs: Log[] = [
@@ -57,12 +59,6 @@ export function CodeVisualizer() {
         ]);
     };
 
-    useEffect(() => {
-        if (scrollRef.current) {
-            scrollRef.current.scrollIntoView({ behavior: 'smooth' });
-        }
-    }, [logs]);
-
     return (
         <HoloCard className="h-full flex flex-col font-mono text-[10px] sm:text-xs">
             {/* Header */}
@@ -79,7 +75,11 @@ export function CodeVisualizer() {
             </div>
 
             {/* Terminal Output */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-none font-mono">
+            <div
+                ref={scrollRef}
+                data-lenis-prevent="true"
+                className="flex-1 overflow-y-auto p-3 space-y-1 scrollbar-none font-mono"
+            >
                 <AnimatePresence initial={false}>
                     {logs.map((log) => (
                         <motion.div
@@ -101,7 +101,6 @@ export function CodeVisualizer() {
                         </motion.div>
                     ))}
                 </AnimatePresence>
-                <div ref={scrollRef} />
             </div>
 
             {/* Footer Status Line */}
