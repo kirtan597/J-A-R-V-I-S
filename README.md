@@ -4,7 +4,7 @@
 
   <h1>J.A.R.V.I.S</h1>
   <p>
-    <strong>Neural Interface v2.5 // Cyberpunk Edition</strong>
+    <strong>Advanced Technical Assistant // Neural Interface v2.5</strong>
   </p>
 
   <p>
@@ -20,9 +20,9 @@
   <br />
 
   <p align="center">
-    <strong>"I am JARVIS. How may I assist you?"</strong>
+    <strong>"I am JARVIS. Your dedicated Technical Expert."</strong>
     <br />
-    A production-grade, autonomous AI Agent built for the future.
+    A production-grade, intelligent chatbot designed to answer complex tech questions.
   </p>
 </div>
 
@@ -30,32 +30,40 @@
 
 ## 🌌 Overview
 
-**JARVIS** is not just a chatbot; it's a fully realized **AI Command Center**. Redesigned with a jaw-dropping **Cyberpunk/Holographic Interface**, it combines the raw power of **Google Gemini 2.5** with the fluidity of **Framer Motion**.
+**JARVIS** is a specialized **AI Technical Assistant** designed to help developers and tech enthusiasts solve problems, write code, and understand complex concepts. 
 
-The interface is built to feel "alive" — with breathing neon glows, scanning data streams, and a reactive AI core that visualizes the agent's thinking process in real-time.
+Unlike simple bots, JARVIS features a completely redesigned **Cyberpunk/Holographic Interface** that makes technical interactions feel immersive. It combines the raw intelligence of **Google Gemini 2.5** with a fluid, application-like experience.
+
+> **Note:** This is a conversational AI designed for information and code generation, not a system-control agent.
 
 ---
 
 ## ✨ Key Features
 
-### 🧠 **Advanced AI Core**
+### 🧠 **Tech Expert Core**
 - **Engine**: Powered by Google's latest `gemini-2.5-flash` model.
-- **Capabilities**: Real-time reasoning, code generation, and complex problem solving.
-- **Visualizer**: An "Arc Reactor" style core that changes states (Idle / Thinking / Speaking / Error).
+- **Specialization**: Optimized for coding assistance, system architecture planning, and technical debugging.
+- **Visualizer**: An "Arc Reactor" style core that physically visualizes the thinking process.
+
+### 📜 **Smart Chat Experience (New!)**
+- **ChatGPT-Style Scrolling**: 
+    - Auto-scrolls smoothly while generating answers.
+    - **Instantly pauses** if you scroll up to read history.
+    - **"Jump to Bottom"** smart button to resume auto-scroll.
+- **Native Touch Control**: Fully supports precision touchpad and touch scrolling without "fighting" the auto-scroll.
 
 ### 🎨 **Stunning UI/UX**
 - **Tech**: Built with **Framer Motion** for 60fps cinematic animations.
-- **Style**: Custom "Glassmorphism" design capability similar to Material 3 but with a futuristic twist.
 - **Components**:
     - **HoloCards**: Floating glass panels with scanline interference effects.
-    - **Live Terminal**: A rolling log of the agent's internal thought process.
-    - **Cyber Chat**: Code blocks that look like they belong in a sci-fi hacker terminal.
+    - **Live Terminal**: A decorative rolling log simulating system analysis.
+    - **Cyber Chat**: Beautifully rendered Markdown and Code Blocks.
 
-### ⚡ **Production Ready**
+### ⚡ **Production Engineering**
 - **Stack**: Next.js 15 (App Router), TypeScript, Tailwind CSS.
-- **Streaming**: Instant token-by-token responses using Vercel AI SDK patterns.
-- **Robust**: Full error handling for API quotas and network issues.
-- **Optimized UI**: Chat UI optimized for stable layout and smooth scrolling, even during long streaming responses.
+- **Streaming**: Low-latency token streaming for instant feedback.
+- **Robust**: Full error handling and rate-limit protection.
+
 ---
 
 ## 🛠️ Technology Stack
@@ -92,14 +100,14 @@ The interface is built to feel "alive" — with breathing neon glows, scanning d
 3.  **Configure Environment**
     Create a `.env` file in the root directory:
     ```bash
-    GEMINI_API_KEY=your_dummy_key_here
+    GEMINI_API_KEY=your_key_here
     ```
 
 4.  **Run the System**
     ```bash
     npm run dev
     ```
-    Open `http://localhost:3000` to initialize the neural link.
+    Open `http://localhost:3000` to satisfy your technical curiosity.
 
 ---
 
