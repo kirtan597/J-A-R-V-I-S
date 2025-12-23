@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useChatHistory } from "@/components/chat/chat-history-context";
 import { ChatListItem } from "@/components/chat/chat-list-item";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { HoloCard } from "@/components/ui/holo-card";
 import { cn } from "@/lib/utils";
 import {
@@ -73,7 +72,10 @@ export function ChatSidebar() {
                 {/* Chat List */}
                 <div className="flex-1 overflow-hidden relative">
                     {!isCollapsed ? (
-                        <ScrollArea className="h-full px-2">
+                        <div
+                            className="h-full px-2 overflow-y-auto scrollbar-thin scrollbar-thumb-cyan-900/50 scrollbar-track-transparent"
+                            data-lenis-prevent="true"
+                        >
                             <div className="flex flex-col gap-1 pb-4">
                                 {sessions.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center h-40 text-zinc-500 gap-2">
@@ -93,7 +95,7 @@ export function ChatSidebar() {
                                     ))
                                 )}
                             </div>
-                        </ScrollArea>
+                        </div>
                     ) : (
                         <div className="flex flex-col items-center gap-4 pt-4">
                             {/* Show active or recent icons when collapsed */}

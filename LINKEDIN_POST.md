@@ -24,10 +24,17 @@ Building something this smooth required the absolute best tools in the industry:
 *   **🧩 ShadCN UI:** For accessible, robust component architecture.
 *   **🟦 TypeScript:** Ensuring rock-solid type safety across the entire application.
 
-### 🔥 Smart Chat Experience (New Enhancements!)
+### 🌌 New: The Cinematic Experience 
+This update introduces a completely redesigned, movie-grade Landing Page:
+*   **🌀 3D Neural Core:** A rotating, particle-emitting brain visualization at the center.
+*   **🖥️ Sci-Fi Typography:** Integrated 'Orbitron' and 'Rajdhani' fonts for that authentic high-tech feel.
+*   **🎥 Dynamic Animations:** Glitch effects, scanning lines, and data streams that bring the interface to life.
+*   **✨ Smooth Interactions:** Optimized scrolling that feels fluid on the landing page but precise in the workspace.
+
+### 🔥 Smart Chat Experience
 I focused heavily on UX to make it feel like a premium tool:
 *   **ChatGPT-Style Smart Scrolling:** Read history while the AI types—no more fighting the auto-scroll!
-*   **Holographic Sidebar:** sleek session management.
+*   **Seamless Navigation:** Smooth transition from the immersive landing page to the holographic dashboard.
 *   **Cyber Terminal:** A visualizer that shows the AI "thinking" through your technical questions.
 *   **Zero-Latency Streaming:** Instant answers powered by Gemini.
 
